@@ -1,14 +1,16 @@
-##### **README.md**
-```markdown
 # PDF Knowledge Extraction Chatbot with Flask and Gemini API
 
-This repository contains a professional Flask-based web application for a PDF knowledge extraction chatbot using Retrieval-Augmented Generation (RAG) and Cache-Augmented Generation (CAG) with Google's Gemini API.
+This repository contains a Flask-based web application for a PDF knowledge extraction chatbot using Retrieval-Augmented Generation (RAG) and Cache-Augmented Generation (CAG) with Google's Gemini API.
 
 ## Features
 - Upload PDF files through a web interface.
+  
 - Ask questions about the PDF content via a chatbot interface.
+  
 - Uses RAG to retrieve relevant document sections for accurate responses.
+  
 - Implements CAG to cache query-response pairs for efficiency.
+  
 - Modular code structure with robust error handling.
 
 ## Requirements
@@ -16,20 +18,24 @@ This repository contains a professional Flask-based web application for a PDF kn
 - Google Gemini API Key (set in `.env`)
 
 ## Installation
+
 1. Clone the repository:
    ```bash
    git clone <repository_url>
    cd pdf-chatbot
    ```
+   
 2. Create a virtual environment (optional):
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
+   
 3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
+   
 4. Create a `.env` file in the project root with:
    ```
    GOOGLE_API_KEY=your_api_key_here
@@ -37,13 +43,16 @@ This repository contains a professional Flask-based web application for a PDF kn
    Obtain the API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
 
 ## Usage
+
 1. Run the application:
    ```bash
    python app.py
    ```
 2. Open a browser and go to `http://127.0.0.1:5000`.
-3. Upload a PDF file using the web form.
-4. Ask questions in the chat interface to get answers based on the PDF content.
+   
+4. Upload a PDF file using the web form.
+   
+6. Ask questions in the chat interface to get answers based on the PDF content.
 
 ## Project Structure
 - `app.py`: Main Flask application with routes and chatbot logic.
@@ -61,4 +70,3 @@ This repository contains a professional Flask-based web application for a PDF kn
 
 ## License
 MIT License
-```
