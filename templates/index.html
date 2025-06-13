@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Chatbot - AI-Powered Document Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        #messages {
+            max-height: 75vh; /* Increased height for larger chat area */
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: #3b82f6 #e5e7eb;
+        }
+        #messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        #messages::-webkit-scrollbar-track {
+            background: #e5e7eb;
+            border-radius: 4px;
+        }
+        #messages::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+        .message {
+            padding: 16px 20px; /* Increased padding for larger message bubbles */
+            margin: 10px 16px; /* Adjusted margins for wider messages */
+            border-radius: 12px;
+            animation: fadeIn 0.3s ease-in;
+            max-width: 85%; /* Wider message bubbles */
+        }
+        .user-message {
+            background-color: #3b82f6;
+            color: white;
+            margin-left: 15%; /* Adjusted to accommodate wider messages */
+            text-align: left;
+        }
+        .bot-message {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            margin-right: 15%; /* Adjusted to accommodate wider messages */
+        }
+        .dark .bot-message {
+            background-color: #374151;
+            color: #e5e7eb;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .upload-section {
+            transition: all 0.3s ease;
+        }
+        .file-input-label {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .file-input-label:hover {
+            background-color: #dbeafe;
+        }
+        #query {
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        #query:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .animateitP{
+            animation: nnn 500ms forwards;
+        }
+        @keyframes nnn {
+            0%{
+                margin-left: 1000px;
+                opacity: 0;
+            }
+            100%{
+                margin-left: 0;
+                opacity: 1;
+            }
+        }
+</style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex flex-col transition-colors duration-300" >
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-file-pdf text-3xl text-blue-600 dark:text-blue-400"></i>
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-white">PDF Chatbot</h1>
+            </div>
+            <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class=" container mx-auto p-6 flex-1 flex items-center justify-center w-screen" >
+        
+        <div  class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-10 w-full animateitP"  > <!-- Increased max-width from max-w-3xl to max-w-4xl -->
+            <!-- Upload Section -->
+            <div class="upload-section mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Upload Your PDF</h2>
+                <form id="uploadForm" action="/upload_pdf" method="post" enctype="multipart/form-data" class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
+                    <label class="file-input-label bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 py-2 px-4 rounded-full text-sm font-semibold">
+                        <i class="fas fa-upload mr-2"></i>Choose PDF
+                        <input type="file" name="file" accept=".pdf" class="hidden">
+                    </label>
+                    <button type="submit" class="bg-blue-600 text-white py-2 px-6 rounded-full hover:bg-blue-700 transition duration-200 font-medium">Upload</button>
+                </form>
+                <p id="uploadMessage" class="text-center mt-4 text-green-600 dark:text-green-400 hidden"></p>
+                <p id="errorMessage" class="text-center mt-4 text-red-600 dark:text-red-400 hidden"></p>
+                <div id="uploadedFiles" class="mt-6">
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Uploaded PDFs:</h3>
+                    <ul id="fileList" class="list-disc list-inside text-gray-600 dark:text-gray-300"></ul>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="border-t dark:border-gray-700 pt-6">
+                <div id="messages" class="mb-6 rounded-lg p-4 bg-gray-50 dark:bg-gray-700"></div>
+                <div class="flex flex-col space-y-4">
+                    <select id="pdfSelect" class="p-3 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select a PDF (or type its name in the query)</option>
+                    </select>
+                    <div class="flex space-x-3">
+                        <input type="text" id="query" placeholder="Ask a question about your PDF..." class="flex-1 p-3 border dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button onclick="sendQuery()" class="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-200 font-medium">
+                            <i class="fas fa-paper-plane mr-2"></i>Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-gray-800 py-4 mt-auto">
+        <div class="container mx-auto px-6 text-center text-gray-600 dark:text-gray-400">
+            © 2025 PDF Chatbot. Powered by <a href="https://x.ai" class="text-blue-600 dark:text-blue-400 hover:underline">xAI</a>.
+        </div>
+    </footer>
+
+    <script>
+        let uploadedFiles = [];
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            themeToggle.innerHTML = document.body.classList.contains('dark') ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+        });
+
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+
+        // Handle PDF upload form submission
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const uploadMessage = document.getElementById('uploadMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const fileList = document.getElementById('fileList');
+            const pdfSelect = document.getElementById('pdfSelect');
+
+            // Reset messages
+            uploadMessage.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+
+            try {
+                const response = await fetch('/upload_pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    uploadMessage.textContent = result.message;
+                    uploadMessage.classList.remove('hidden');
+                    // Add filename to the list and dropdown
+                    const filename = formData.get('file').name;
+                    if (!uploadedFiles.includes(filename)) {
+                        uploadedFiles.push(filename);
+                        const li = document.createElement('li');
+                        li.textContent = filename;
+                        li.className = 'py-1';
+                        fileList.appendChild(li);
+
+                        const option = document.createElement('option');
+                        option.value = filename;
+                        option.textContent = filename;
+                        pdfSelect.appendChild(option);
+                    }
+                } else {
+                    errorMessage.textContent = result.error || 'Failed to upload PDF.';
+                    errorMessage.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorMessage.textContent = 'An error occurred while uploading the PDF.';
+                errorMessage.classList.remove('hidden');
+            }
+        });
+
+        // Handle reset system
+        async function resetSystem() {
+            try {
+                const response = await fetch('/reset', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    document.getElementById('uploadMessage').textContent = result.message;
+                    document.getElementById('uploadMessage').classList.remove('hidden');
+                    document.getElementById('fileList').innerHTML = '';
+                    document.getElementById('pdfSelect').innerHTML = '<option value="">Select a PDF (or type its name in the query)</option>';
+                    uploadedFiles = [];
+                    document.getElementById('messages').innerHTML = '';
+                } else {
+                    document.getElementById('errorMessage').textContent = result.error || 'Failed to reset system.';
+                    document.getElementById('errorMessage').classList.remove('hidden');
+                }
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = 'An error occurred while resetting the system.';
+                document.getElementById('errorMessage').classList.remove('hidden');
+            }
+        }
+
+        // Handle sending queries
+        async function sendQuery() {
+            const queryInput = document.getElementById('query');
+            const query = queryInput.value.trim();
+            const messages = document.getElementById('messages');
+            const errorMessage = document.getElementById('errorMessage');
+            const pdfSelect = document.getElementById('pdfSelect');
+            const targetPdf = pdfSelect.value;
+
+            if (!query) {
+                errorMessage.textContent = 'Please enter a question.';
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+
+            // Clear error message
+            errorMessage.classList.add('hidden');
+
+            // Add user message
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user-message';
+            userMessage.textContent = query;
+            messages.appendChild(userMessage);
+
+            // Clear input
+            queryInput.value = '';
+
+            try {
+                const response = await fetch('/get_response', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, target_pdf: targetPdf })
+                });
+                const result = await response.json();
+
+                // Add bot response
+                const botMessage = document.createElement('div');
+                botMessage.className = 'message bot-message';
+                botMessage.textContent = result.answer || result.error || 'No response received.';
+                messages.appendChild(botMessage);
+
+                // Scroll to bottom
+                messages.scrollTop = messages.scrollHeight;
+            } catch (error) {
+                errorMessage.textContent = 'An error occurred while fetching the response.';
+                errorMessage.classList.remove('hidden');
+            }
+        }
+
+        // Allow pressing Enter to send query
+        document.getElementById('query').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendQuery();
+        });
+    </script>
+</body>
+</html>

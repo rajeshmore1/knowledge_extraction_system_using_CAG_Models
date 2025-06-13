@@ -1,0 +1,10 @@
+flask==2.3.2
+langchain==0.3.25
+langchain-community==0.3.24
+langchain-google-genai==2.1.4
+langchain-huggingface==0.1.0
+langchain-chroma==0.1.4
+chromadb==0.4.24
+pypdf==4.2.0
+tiktoken==0.8.0
+protobuf<=3.20.3
