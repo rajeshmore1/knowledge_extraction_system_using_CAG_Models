@@ -70,5 +70,8 @@ This repository contains a Flask-based web application for a PDF knowledge extra
 - `.gitignore`: Specifies files to ignore.
 - `README.md`: Project documentation.
 
+## Demo
+<img width="1470" alt="image" src="https://github.com/user-attachments/assets/8c95af30-52bd-4457-bfc5-85fd5a9b2414" />
+
 ## License
 MIT License
