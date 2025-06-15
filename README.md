@@ -2,6 +2,8 @@
 
 This repository contains a Flask-based web application for a PDF knowledge extraction chatbot using Retrieval-Augmented Generation (RAG) and Cache-Augmented Generation (CAG) with Google's Gemini API.
 
+<img width="976" alt="image" src="https://github.com/user-attachments/assets/ff56336c-a5f5-476a-a34b-5d540edfac60" />
+
 ## Features
 - Upload PDF files through a web interface.
   
